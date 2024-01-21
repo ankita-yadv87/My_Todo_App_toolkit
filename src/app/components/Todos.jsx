@@ -1,10 +1,28 @@
-import React from 'react'
+import React,{ useState} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { removeTodo } from '../features/todo/todoSlice'
+import { removeTodo, editTodo } from '../features/todo/todoSlice'
+import Modal from './Modal'
 
 function Todos() {
   const todos = useSelector(state => state.todos)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editedTodoId, setEditedTodoId] = useState(null);
   const dispatch = useDispatch()
+
+  const handleEditClick = (id) => {
+    setEditedTodoId(id);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = (editedText) => {
+    dispatch(editTodo({ id: editedTodoId, editedText: editedText }));
+    handleModalClose(); 
+  };
+
+  const handleModalClose = () => {
+    setIsEditModalOpen(false);
+    setEditedTodoId(null);
+  };
 
   return (
     <>
@@ -34,7 +52,7 @@ function Todos() {
              </svg>
            </button>
            <button
-             onClick={() => dispatch(removeTodo(todo.id))}
+             onClick={() => handleEditClick(todo.id)}
              className="text-white bg-red-500 border-0 py-1 px-4 focus:outline-none hover:bg-red-600 rounded text-md"
            >
              <svg
@@ -56,8 +74,15 @@ function Todos() {
        </li>
         ))}
       </ul>
+
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={handleModalClose}
+        onSubmit={handleEditSubmit}
+      />
     </>
   )
 }
 
 export default Todos
+
